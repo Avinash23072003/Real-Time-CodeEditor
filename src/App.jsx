@@ -6,31 +6,22 @@ import { Toaster } from "react-hot-toast";
 
 function App() {
   return (
-    <>
-      <div>
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            sucess: {
-              theme: {
-                primary: "#36ad40",
-              },
+    <BrowserRouter>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          success: {
+            theme: {
+              primary: "#36ad40",
             },
-          }}
-        ></Toaster>
-      </div>
-      <div>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Home></Home>}></Route>
-            <Route
-              path="/editor/:roomId"
-              element={<EditorPage></EditorPage>}
-            ></Route>
-          </Routes>
-        </BrowserRouter>
-      </div>
-    </>
+          },
+        }}
+      />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/editor/:roomId" element={<EditorPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
