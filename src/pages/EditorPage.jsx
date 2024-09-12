@@ -80,7 +80,7 @@ const EditorPage = () => {
               className="logo-img"
             />
           </div>
-          <h3>Connected</h3>
+          <h3 className="connectedName">Connected</h3>
           <div className="clientsList">
             {clients.map((client) => (
               <Client key={client.socketId} userName={client.userName} />
