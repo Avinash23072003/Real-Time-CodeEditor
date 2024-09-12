@@ -1,0 +1,122 @@
+.HomePageWrapper{
+  min-height: 100vh;
+  display:flex;
+  align-items: center;
+  justify-content: center;
+  color:white;
+
+
+}
+.formWrapper{
+  background: #0c1a3d;
+  padding:10px;
+  border-radius:10px;
+  width:400px;
+  height:400px;
+  max-width:90%;
+}
+footer{
+  bottom:0;
+  position:fixed;
+}
+footer a{
+  color:#36ad40;
+}
+.logo-img{
+  width:150px;
+}
+.roomHeading{
+  text-align: center;
+  font-size:30px;
+}
+.input-box{
+  display: flex;
+  flex-direction: column;
+  margin-bottom:2px;
+}
+.input{
+  border-radius: 5px;
+  padding:10px;
+  margin-bottom:10px;
+  background: #d5dbeb;
+  outline: none;
+}
+.createInfo{
+  text-align:center;
+  padding:10px;
+
+}
+.btn{
+color:black;
+padding:8px;
+width:100px;
+font-size:16px;
+ cursor:pointer;
+ border:none;
+ border-radius:8px;
+}
+.joinBtn{
+  background: #1dd12c;
+
+}
+.joinBtn:hover{
+  background:#36ad40;
+
+}
+.createInfo a{
+  color:#36ad40;
+}
+
+.mainWrapper{
+  display:grid;
+  grid-template-columns: 230px 1fr;
+  height:100vh;
+}
+
+.leftWrapper{
+  margin:5px;
+  background:black;
+  padding:10px;
+  display:flex;
+  flex-direction: column;
+  border-radius:20px;
+
+}
+.leftInnerWrapper{
+  flex:1;
+}
+
+.clientsList{
+  display:flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap:20px;
+}
+.copy-btn{
+  margin:10px;
+  font-weight: bold;
+}
+.leave-btn{
+  margin:10px;
+  background: #1dd12c;
+  font-weight: bold;
+}
+.leave-btn:hover{
+  background: #4ede5a;
+}
+.username{
+  display:flex;
+  align-items: center;
+  text-align: center;
+  flex-direction: column;
+  font:bold;
+  color:white;
+  padding-top:5px;
+ 
+}
+.CodeMirror{
+  min-height:calc(100vh-20px);
+  padding-top:20px;
+  font-size:20px;
+  line-height: 1.6;
+}
