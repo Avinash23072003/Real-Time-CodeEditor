@@ -1,5 +1,4 @@
-// actions.js
-export const Actions = {
+export const ACTION = {
   JOIN: "join",
   JOINED: "joined",
   DISCONNECT: "disconnect",

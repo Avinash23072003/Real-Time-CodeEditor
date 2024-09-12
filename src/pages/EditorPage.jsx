@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import Client from "../components/Client";
 import Editor from "../components/Editor";
 import { initSocket } from "../socket";
-import { Actions } from "../Actions";
+import { ACTION } from "../Constants/ACTION";
 import {
   useLocation,
   useNavigate,
@@ -16,6 +16,7 @@ const EditorPage = () => {
   const location = useLocation();
   const reactNavigate = useNavigate();
   const { roomId } = useParams();
+  const [clients, setClients] = useState([]); // Initialize with an empty array
 
   useEffect(() => {
     const init = async () => {
@@ -31,10 +32,22 @@ const EditorPage = () => {
           reactNavigate("/");
         }
 
-        socketRef.current.emit(Actions.JOIN, {
+        socketRef.current.emit(ACTION.JOIN, {
           roomId,
           userName: location.state?.userName,
         });
+
+        // Listening for the 'joined' event
+        socketRef.current.on(
+          ACTION.JOINED,
+          ({ clients, userName, socketId }) => {
+            if (userName !== location.state?.userName) {
+              toast.success(`${userName} has joined`);
+            }
+            console.log("Socket ID:", socketId); // Log the socket ID
+            setClients(clients); // Update clients state with the new list
+          }
+        );
       } catch (error) {
         console.error("Initialization error", error);
         toast.error("Failed to initialize socket connection");
@@ -51,15 +64,6 @@ const EditorPage = () => {
       }
     };
   }, [location.state?.userName, roomId, reactNavigate]);
-
-  const [clients, setClients] = useState([
-    { socketId: "1", userName: "Anash C" },
-    { socketId: "2", userName: "Rahul C" },
-    { socketId: "3", userName: "lalal H" },
-    { socketId: "4", userName: "Amey S" },
-    { socketId: "5", userName: "Maya C" },
-    { socketId: "6", userName: "Ashoka C" },
-  ]);
 
   if (!location.state) {
     return <Navigate to="/" />;

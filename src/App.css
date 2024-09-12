@@ -85,6 +85,9 @@ font-size:16px;
 .leftInnerWrapper{
   flex:1;
 }
+.connectedName{
+  color: #d5dbeb;
+}
 
 .clientsList{
   display:flex;
