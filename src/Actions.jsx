@@ -1,7 +1,8 @@
-export const ACTION = {
+// actions.js
+export const Actions = {
   JOIN: "join",
   JOINED: "joined",
-  USER_DISCONNECTED: "user-disconnected", // Use a custom event name here
+  DISCONNECT: "disconnect",
   CODE_CHANGE: "code-change",
   SYNC_CODE: "sync-code",
   LEAVE: "leave",

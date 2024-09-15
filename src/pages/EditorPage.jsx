@@ -16,41 +16,58 @@ const EditorPage = () => {
   const location = useLocation();
   const reactNavigate = useNavigate();
   const { roomId } = useParams();
-  const [clients, setClients] = useState([]); // Initialize with an empty array
+  const [clients, setClients] = useState([]);
+  const initializedRef = useRef(false); // Ref to track initialization
 
   useEffect(() => {
+    console.log("useEffect called");
+    if (initializedRef.current) return; // Prevent duplicate initialization
+    initializedRef.current = true;
+
     const init = async () => {
       try {
         socketRef.current = await initSocket();
-
-        // Define event handlers outside useEffect to avoid multiple registrations
-        const handleError = (e) => {
-          console.error("Socket error", e);
-          toast.error("Socket connection failed, try again later");
-          reactNavigate("/");
-        };
-
-        const handleJoined = ({ clients, userName, socketId }) => {
-          console.log("ACTION.JOINED event received");
-          console.log("Socket ID:", socketId); // Log the socket ID
-          console.log("Clients Data:", clients); // Log the clients data
-
-          if (userName !== location.state?.userName) {
-            toast.success(`${userName} has joined`);
-          }
-          setClients(clients); // Update clients state with the new list
-        };
-
-        // Attach event listeners
-        socketRef.current.on("connect_error", handleError);
-        socketRef.current.on("connect_failed", handleError);
-        socketRef.current.on(ACTION.JOINED, handleJoined);
 
         // Emit join event
         socketRef.current.emit(ACTION.JOIN, {
           roomId,
           userName: location.state?.userName,
         });
+
+        // Event handler for when a user joins
+        const handleJoined = ({ clients, userName, socketId }) => {
+          console.log("ACTION.JOINED event received", clients);
+
+          // Prevent toast for the current user
+          if (socketRef.current.id !== socketId) {
+            toast.success(`${userName} has joined`);
+          }
+
+          // Update the clients state
+          setClients(clients);
+        };
+
+        // Event handler for when a user disconnects
+        const handleUserDisconnected = ({ socketId, userName }) => {
+          toast.success(`${userName} left the room`);
+          setClients((prev) =>
+            prev.filter((client) => client.socketId !== socketId)
+          );
+        };
+
+        // Register event listeners
+        socketRef.current.on(ACTION.JOINED, handleJoined);
+        socketRef.current.on(ACTION.USER_DISCONNECTED, handleUserDisconnected);
+
+        // Error handling
+        const handleError = (e) => {
+          console.error("Socket error", e);
+          toast.error("Socket connection failed, try again later");
+          reactNavigate("/");
+        };
+
+        // socketRef.current.on("connect_error", handleError);
+        socketRef.current.on("connect_failed", handleError);
       } catch (error) {
         console.error("Initialization error", error);
         toast.error("Failed to initialize socket connection");
@@ -60,14 +77,14 @@ const EditorPage = () => {
 
     init();
 
-    // Cleanup on component unmount
+    // Cleanup: Remove socket event listeners on unmount
     return () => {
       if (socketRef.current) {
-        socketRef.current.off(ACTION.JOINED); // Remove event listener
+        socketRef.current.off(ACTION.USER_DISCONNECTED);
         socketRef.current.disconnect();
       }
     };
-  }, [location.state?.userName, roomId, reactNavigate]);
+  }, [roomId, location.state?.userName, reactNavigate]); // Add dependencies for roomId, userName, and navigate
 
   if (!location.state) {
     return <Navigate to="/" />;

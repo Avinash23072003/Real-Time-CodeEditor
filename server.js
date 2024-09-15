@@ -28,43 +28,41 @@ io.on('connection', (socket) => {
     if (!userMapSocket[socket.id]) {
       userMapSocket[socket.id] = userName;
       socket.join(roomId);
+
       const clients = getAllClients(roomId);
       console.log('Clients in room', roomId, ':', clients);
 
       // Emit to all clients in the room
-      io.to(roomId).emit(ACTION.JOINED, {
-        clients,
-        userName,
-        socketId: socket.id,
+      clients.forEach(({ socketId }) => {
+        io.to(socketId).emit(ACTION.JOINED, {
+          clients,
+          userName,
+          socketId: socket.id,
+        });
       });
     }
   });
 
-  socket.on('disconnect', () => {
+  socket.on('disconnecting', () => {
     console.log('Socket disconnected:', socket.id);
 
-    // Find the room the socket was in
-    const rooms = Array.from(socket.rooms);
+    // Find the rooms the socket was in
+    const rooms = [...socket.rooms];
+
     rooms.forEach((roomId) => {
-      if (roomId !== socket.id) {
-        // Remove user from the user map
-        delete userMapSocket[socket.id];
-
-        // Get updated list of clients
-        const clients = getAllClients(roomId);
-        console.log('Updated clients in room', roomId, ':', clients);
-
-        // Notify all clients in the room about the disconnection
-        io.to(roomId).emit(ACTION.JOINED, {
-          clients,
-          userName: null, // No specific userName to emit here
-          socketId: socket.id,
-        });
-      }
+      // Notify other users in the room that the user has disconnected
+      socket.to(roomId).emit(ACTION.USER_DISCONNECTED, {
+        socketId: socket.id,
+        userName: userMapSocket[socket.id],
+      });
     });
+
+    // Remove user from the user map
+    delete userMapSocket[socket.id];
   });
 });
 
+// Define the PORT
 const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => {
