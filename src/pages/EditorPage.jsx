@@ -13,6 +13,7 @@ import { toast } from "react-hot-toast";
 
 const EditorPage = () => {
   const socketRef = useRef(null);
+  const codeRef = useRef(""); // Initialize with an empty string to avoid null references
   const location = useLocation();
   const reactNavigate = useNavigate();
   const { roomId } = useParams();
@@ -45,6 +46,14 @@ const EditorPage = () => {
 
           // Update the clients state
           setClients(clients);
+
+          // Sync code with the newly joined user
+          if (codeRef.current) {
+            socketRef.current.emit(ACTION.SYNC_CODE, {
+              code: codeRef.current,
+              socketId,
+            });
+          }
         };
 
         // Event handler for when a user disconnects
@@ -66,7 +75,8 @@ const EditorPage = () => {
           reactNavigate("/");
         };
 
-        // socketRef.current.on("connect_error", handleError);
+        // Error handling listeners
+        socketRef.current.on("connect_error", handleError);
         socketRef.current.on("connect_failed", handleError);
       } catch (error) {
         console.error("Initialization error", error);
@@ -77,10 +87,13 @@ const EditorPage = () => {
 
     init();
 
-    // Cleanup: Remove socket event listeners on unmount
+    // Cleanup: Remove all socket event listeners on unmount
     return () => {
       if (socketRef.current) {
+        socketRef.current.off(ACTION.JOINED);
         socketRef.current.off(ACTION.USER_DISCONNECTED);
+        socketRef.current.off("connect_error");
+        socketRef.current.off("connect_failed");
         socketRef.current.disconnect();
       }
     };
@@ -88,6 +101,20 @@ const EditorPage = () => {
 
   if (!location.state) {
     return <Navigate to="/" />;
+  }
+
+  async function copyRoomId() {
+    try {
+      await navigator.clipboard.writeText(roomId);
+      toast.success("Room ID has been copied successfully");
+    } catch (err) {
+      toast.error("Failed to copy Room ID");
+      console.error(err);
+    }
+  }
+
+  function leaveRoom() {
+    reactNavigate("/");
   }
 
   return (
@@ -108,11 +135,21 @@ const EditorPage = () => {
             ))}
           </div>
         </div>
-        <button className="btn copy-btn">Copy Id</button>
-        <button className="btn leave-btn">Leave Id</button>
+        <button className="btn copy-btn" onClick={copyRoomId}>
+          Copy ID
+        </button>
+        <button className="btn leave-btn" onClick={leaveRoom}>
+          Leave Room
+        </button>
       </div>
       <div className="rightWrapper">
-        <Editor />
+        <Editor
+          socketRef={socketRef}
+          roomId={roomId}
+          onCodeChange={(code) => {
+            codeRef.current = code; // Update the codeRef with the latest code
+          }}
+        />
       </div>
     </div>
   );

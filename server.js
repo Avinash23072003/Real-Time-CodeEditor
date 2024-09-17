@@ -43,6 +43,17 @@ io.on('connection', (socket) => {
     }
   });
 
+  //syncing the code
+  socket.on(ACTION.CODE_CHANGE,({roomId,code})=>{
+   // console.log('Recieving',code);
+    socket.in(roomId).emit(ACTION.CODE_CHANGE,{code})
+  })
+
+  socket.on(ACTION.SYNC_CODE,({socketId,code})=>{
+    // console.log('Recieving',code);
+     io.to(socketId).emit(ACTION.SYNC_CODE,{code})
+   })
+
   socket.on('disconnecting', () => {
     console.log('Socket disconnected:', socket.id);
 
